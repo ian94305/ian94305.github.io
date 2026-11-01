@@ -4,6 +4,7 @@
   const reduce = matchMedia('(prefers-reduced-motion:reduce)');
   const identity = layout?.querySelector('.identity');
   const identityContent = identity?.firstElementChild;
+  const description = identity?.querySelector('.identity-description');
   if (!layout) return;
   let frame = 0;
   function update() {
@@ -11,11 +12,17 @@
     if (!desktop.matches) {
       layout.style.removeProperty('--sidebar-fr');
       layout.style.removeProperty('--content-fr');
-      ['--identity-x', '--identity-name-size', '--identity-zh-size', '--identity-nav-size', '--identity-nav-space', '--identity-nav-gap'].forEach(key => layout.style.removeProperty(key));
+      ['--identity-x', '--identity-name-size', '--identity-zh-size', '--identity-nav-size', '--identity-nav-space', '--identity-nav-gap', '--identity-description-scale', '--identity-description-opacity'].forEach(key => layout.style.removeProperty(key));
+      if (description) description.hidden = false;
       return;
     }
-    const progress = reduce.matches ? 1 : Math.min(1, Math.max(0, scrollY / (innerHeight * .5)));
+    const scrollProgress = Math.min(1, Math.max(0, scrollY / (innerHeight * .5)));
+    const progress = reduce.matches ? 1 : scrollProgress;
     const eased = progress * progress * (3 - 2 * progress);
+    const descriptionProgress = reduce.matches ? Number(scrollProgress >= 1) : eased;
+    layout.style.setProperty('--identity-description-scale', String(1 - .98 * descriptionProgress));
+    layout.style.setProperty('--identity-description-opacity', String(1 - descriptionProgress * descriptionProgress));
+    if (description) description.hidden = descriptionProgress >= 1;
     layout.style.setProperty('--sidebar-fr', `${.5 - .25 * eased}fr`);
     layout.style.setProperty('--content-fr', `${.5 + .25 * eased}fr`);
     layout.style.setProperty('--identity-name-size', `${64 - 16 * eased}px`);
@@ -231,6 +238,59 @@
     }));
     hover.addEventListener('change', () => { if (!hover.matches) closePreview(); });
   });
+})();
+
+(() => {
+  // Section transitions keep their hues; projects return to the home background.
+  const root = document.documentElement;
+  const base = [11, 18, 36];
+  const stops = [
+    ['work-experience', [7, 26, 54]],
+    ['learning-experience', [27, 11, 53]],
+    ['projects', base],
+    ['contact', base],
+  ].map(([id, color]) => ({element: document.getElementById(id), color}))
+    .filter(stop => stop.element);
+  const reduced = matchMedia('(prefers-reduced-motion:reduce)');
+  const forced = matchMedia('(forced-colors:active)');
+  let frame = 0;
+  let lastColor = '';
+  function update() {
+    frame = 0;
+    if (forced.matches) {
+      root.style.removeProperty('--background');
+      lastColor = '';
+      return;
+    }
+    let color = base;
+    for (const stop of stops) {
+      const top = stop.element.getBoundingClientRect().top;
+      const progress = reduced.matches ? Number(top <= innerHeight * .5) :
+        Math.min(1, Math.max(0, (innerHeight * .85 - top) / (innerHeight * .65)));
+      if (!progress) break;
+      const eased = progress * progress * (3 - 2 * progress);
+      color = color.map((channel, index) => channel + (stop.color[index] - channel) * eased);
+      if (progress < 1) break;
+    }
+    const value = `rgb(${color.map(channel => channel.toFixed(2)).join(', ')})`;
+    if (value !== lastColor) {
+      root.style.setProperty('--background', value);
+      lastColor = value;
+    }
+  }
+  function schedule() { if (!frame) frame = requestAnimationFrame(update); }
+  window.addEventListener('scroll', schedule, {passive:true});
+  window.addEventListener('resize', schedule, {passive:true});
+  window.addEventListener('pageshow', schedule);
+  document.addEventListener('toggle', schedule, true);
+  reduced.addEventListener('change', schedule);
+  forced.addEventListener('change', schedule);
+  if ('ResizeObserver' in window) {
+    const observer = new ResizeObserver(schedule);
+    document.querySelectorAll('main, .timeline-details').forEach(element => observer.observe(element));
+  }
+  document.fonts.ready.then(schedule);
+  update();
 })();
 
 (() => {

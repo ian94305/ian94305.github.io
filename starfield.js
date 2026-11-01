@@ -1,8 +1,7 @@
 // Local trial: a small, dependency-free Canvas layer behind the original site.
 (() => {
   const canvas = document.querySelector('.starfield');
-  const button = document.querySelector('.starfield-toggle');
-  if (!canvas || !button) return;
+  if (!canvas) return;
   let context;
   try { context = canvas.getContext('2d', {alpha:true}); } catch { return; }
   if (!context) return;
@@ -11,9 +10,6 @@
   const contrast = matchMedia('(forced-colors:active)');
   const mobile = matchMedia('(max-width:700px)');
   const print = matchMedia('print');
-  const text = button.querySelector('span');
-  const pauseIcon = button.querySelector('.starfield-pause-icon');
-  const playIcon = button.querySelector('.starfield-play-icon');
   const frameInterval = 1000 / 30;
   const colors = ['184,205,229', '211,224,240', '239,211,164'];
   let width = 0;
@@ -23,7 +19,6 @@
   let frame = 0;
   let lastPaint = 0;
   let elapsed = 0;
-  let manuallyPaused = false;
   let resizeTimer = 0;
 
   function randomStar() {
@@ -60,7 +55,7 @@
   }
 
   function running() {
-    return !manuallyPaused && !reduce.matches && !contrast.matches && !print.matches && !document.hidden;
+    return !reduce.matches && !contrast.matches && !print.matches && !document.hidden;
   }
 
   function tick(now) {
@@ -82,12 +77,7 @@
     frame = 0;
     lastPaint = 0;
     canvas.hidden = contrast.matches || print.matches;
-    button.hidden = reduce.matches || contrast.matches || print.matches;
-    text.textContent = manuallyPaused ? '播放星空' : '暫停星空';
-    button.setAttribute('aria-label', manuallyPaused ? '播放星空背景動畫' : '暫停星空背景動畫');
-    pauseIcon.toggleAttribute('hidden', manuallyPaused);
-    playIcon.toggleAttribute('hidden', !manuallyPaused);
-    canvas.dataset.state = document.hidden ? 'hidden' : contrast.matches || print.matches ? 'disabled' : reduce.matches ? 'static' : manuallyPaused ? 'paused' : 'running';
+    canvas.dataset.state = document.hidden ? 'hidden' : contrast.matches || print.matches ? 'disabled' : reduce.matches ? 'static' : 'running';
     if (!canvas.hidden && !document.hidden) paint();
     if (running()) frame = requestAnimationFrame(tick);
   }
@@ -104,7 +94,6 @@
     synchronize();
   }
 
-  button.addEventListener('click', () => { manuallyPaused = !manuallyPaused; synchronize(); });
   document.addEventListener('visibilitychange', synchronize);
   window.addEventListener('pagehide', () => { if (frame) cancelAnimationFrame(frame); frame = 0; });
   window.addEventListener('pageshow', synchronize);
