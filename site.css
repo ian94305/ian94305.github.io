@@ -343,6 +343,7 @@ html,body{overflow-x:clip}
 .project-preview-image{margin:0;min-width:0}
 .project-preview-image a{display:block;aspect-ratio:1.6;border-radius:4px;overflow:hidden;background:var(--project-surface)}
 .project-preview-image img{display:block;width:100%;height:100%;object-fit:contain}
+.project-previews.is-portrait .project-preview-image a{aspect-ratio:390/844}
 .project-preview-image figcaption{font-size:12px;line-height:1.7;margin-top:8px;color:var(--muted)}
 .project-preview-image a:focus-visible{outline:2px solid var(--accent);outline-offset:4px}
 .project-website{display:inline-flex;align-items:center;min-height:44px;color:var(--text);gap:4px}
@@ -411,6 +412,7 @@ html,body{overflow-x:clip}
  #projects .project-entry .project-description{margin:16px 0 24px;font-size:16px}
  .project-previews.has-images{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-padding-inline:2px;padding:4px 2px 12px;margin-inline:-2px;scrollbar-width:thin;overscroll-behavior-x:contain}
  .has-images .project-preview-image{flex:0 0 88%;scroll-snap-align:start}
+ .has-images.is-portrait .project-preview-image{flex-basis:min(88%,320px)}
  .has-images .project-preview-image a:focus-visible{outline-offset:-3px}
  .has-images figcaption{display:flex;justify-content:space-between;gap:12px;font-size:13px;margin-top:10px}
  .preview-count{display:inline;font-variant-numeric:tabular-nums;white-space:nowrap}
