@@ -52,6 +52,14 @@
   const nav = document.querySelector('#primary-nav');
   const compact = matchMedia('(max-width:1023px)');
   if (!button || !nav) return;
+  const bar = document.querySelector('.identity-top');
+  function measureBar() {
+    if (compact.matches && bar) document.documentElement.style.setProperty('--mobile-header-height', `${bar.getBoundingClientRect().height}px`);
+    else document.documentElement.style.removeProperty('--mobile-header-height');
+  }
+  if (bar && 'ResizeObserver' in window) new ResizeObserver(measureBar).observe(bar);
+  compact.addEventListener('change', measureBar);
+  measureBar();
   function setOpen(open) {
     button.setAttribute('aria-expanded', String(open));
     button.setAttribute('aria-label', open ? '關閉導覽選單' : '開啟導覽選單');
@@ -76,6 +84,9 @@
   document.addEventListener('click', event => {
     if (!nav.contains(event.target) && !button.contains(event.target)) setOpen(false);
   });
+  document.addEventListener('focusin', event => {
+    if (compact.matches && !nav.contains(event.target) && !button.contains(event.target)) setOpen(false);
+  });
   compact.addEventListener('change', () => {
     const focusWasInNav = nav.contains(document.activeElement);
     setOpen(false);
@@ -89,6 +100,7 @@
   const links = [...document.querySelectorAll('.identity nav a')];
   const experienceLink = document.querySelector('.nav-group > a[aria-controls="experience-nav"]');
   const experienceNav = document.querySelector('#experience-nav');
+  const compact = matchMedia('(max-width:1023px)');
   let anchorTarget = sections.find(section => `#${section.id}` === location.hash);
   let anchorSettledY = null;
   let requestedExpansion = false;
@@ -116,7 +128,7 @@
     // Short mobile pages may reach the bottom before the section can reach the marker.
     const inExperience = experienceRect && experienceRect.top <= innerHeight * .5 && experienceRect.bottom > marker;
     if (inExperience) requestedExpansion = false;
-    setExperienceExpanded(inExperience || requestedExpansion);
+    setExperienceExpanded(compact.matches || inExperience || requestedExpansion);
     links.forEach(link => {
       if (link !== experienceLink && link.hash === `#${active.id}`) link.setAttribute('aria-current', 'location');
       else link.removeAttribute('aria-current');
@@ -128,6 +140,7 @@
   }
   window.addEventListener('scroll', schedule, {passive:true});
   window.addEventListener('resize', schedule, {passive:true});
+  compact.addEventListener('change', schedule);
   window.addEventListener('hashchange', () => {
     anchorSettledY = null;
     anchorTarget = sections.find(section => `#${section.id}` === location.hash);
@@ -329,13 +342,14 @@
   const copy = document.querySelector('.about-copy');
   const profile = document.querySelector('.about-profile');
   const reduced = matchMedia('(prefers-reduced-motion:reduce)');
+  const compact = matchMedia('(max-width:1023px)');
   if (!copy || !profile) return;
   let frame = 0;
   let currentX = 0;
   const clamp = value => Math.min(1, Math.max(0, value));
   function update() {
     frame = 0;
-    if (reduced.matches || copy.contains(document.activeElement)) {
+    if (compact.matches || reduced.matches || copy.contains(document.activeElement)) {
       copy.classList.remove('is-scroll-exit');
       ['--about-copy-x','--about-copy-opacity','will-change'].forEach(key => copy.style.removeProperty(key));
       currentX = 0;
@@ -344,8 +358,8 @@
     const rect = copy.getBoundingClientRect();
     const naturalLeft = rect.left - currentX;
     const naturalTop = rect.top + scrollY;
-    // Start after the copy reaches the upper reading band; phone copy can enter
-    // naturally before it starts departing. Horizontal transforms never reflow it.
+    // Desktop copy leaves after reaching the upper reading band. Compact screens
+    // keep their full reading measure and use only the gentle section fade.
     const start = Math.max(0, naturalTop - innerHeight * .3);
     const duration = Math.max(220, Math.min(360, innerHeight * .45));
     const progress = clamp((scrollY - start) / duration);
@@ -365,6 +379,7 @@
   copy.addEventListener('focusin', schedule);
   copy.addEventListener('focusout', schedule);
   reduced.addEventListener('change', schedule);
+  compact.addEventListener('change', schedule);
   document.fonts.ready.then(schedule);
   if ('ResizeObserver' in window) new ResizeObserver(schedule).observe(profile);
   update();
@@ -374,6 +389,7 @@
   // Fade across a wider reading band, without changing layout or scale.
   const items = [...document.querySelectorAll('.about-profile, .experience-timeline .entry, #projects .entry, #contact .entry')];
   const reduced = matchMedia('(prefers-reduced-motion:reduce)');
+  const compact = matchMedia('(max-width:1023px)');
   if (!items.length) return;
   let frame = 0;
   const clamp = value => Math.min(1, Math.max(0, value));
@@ -388,13 +404,14 @@
       items.forEach(item => item.style.removeProperty('--scroll-opacity'));
       return;
     }
-    const entranceDistance = innerHeight * .6;
-    const exitDistance = innerHeight * .45;
+    const entranceDistance = innerHeight * (compact.matches ? .2 : .6);
+    const exitDistance = innerHeight * (compact.matches ? .12 : .45);
     // Read all geometry first, then update opacity; text and image sizes stay fixed.
     const values = items.map(item => {
       const rect = item.getBoundingClientRect();
-      return Math.min(fade((innerHeight - rect.top) / entranceDistance),
+      const opacity = Math.min(fade((innerHeight - rect.top) / entranceDistance),
         fade(rect.bottom / exitDistance));
+      return compact.matches ? .9 + .1 * opacity : opacity;
     });
     items.forEach((item, index) => item.style.setProperty('--scroll-opacity', values[index].toFixed(3)));
   }
@@ -414,6 +431,7 @@
   }
   document.fonts.ready.then(schedule);
   reduced.addEventListener('change', schedule);
+  compact.addEventListener('change', schedule);
   update();
 })();
 
