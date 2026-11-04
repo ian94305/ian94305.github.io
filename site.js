@@ -476,3 +476,80 @@
   homePosition();
   render();
 })();
+
+(() => {
+  const viewer = document.querySelector('.image-viewer');
+  if (!viewer || typeof viewer.showModal !== 'function') return;
+  const track = viewer.querySelector('.viewer-track');
+  const status = viewer.querySelector('.viewer-caption');
+  const previous = viewer.querySelector('[data-step="-1"]');
+  const next = viewer.querySelector('[data-step="1"]');
+  let links = [];
+  let current = -1;
+  let opener;
+
+  function updateCaption(index) {
+    if (index === current) return;
+    current = index;
+    const label = links[index].closest('figure').querySelector('figcaption span').textContent;
+    const count = document.createElement('small');
+    count.textContent = (index + 1) + ' / ' + links.length;
+    status.replaceChildren(document.createTextNode(label), count);
+    previous.setAttribute('aria-disabled', String(index === 0));
+    next.setAttribute('aria-disabled', String(index === links.length - 1));
+  }
+
+  function show(index) {
+    if (index < 0 || index >= links.length) return;
+    track.scrollLeft = index * track.clientWidth;
+    updateCaption(index);
+  }
+
+  for (const gallery of document.querySelectorAll('.project-previews.has-images')) {
+    const members = [...gallery.querySelectorAll('figure a')];
+    const title = gallery.closest('article').getAttribute('aria-label');
+    for (const link of members) {
+      const label = link.closest('figure').querySelector('figcaption span').textContent;
+      link.setAttribute('aria-label', '開啟' + title + '圖片集，' + label);
+      link.setAttribute('aria-haspopup', 'dialog');
+    }
+    gallery.addEventListener('click', event => {
+      const link = event.target.closest('a');
+      if (!members.includes(link) || event.button !== 0 || event.ctrlKey || event.metaKey ||
+          event.shiftKey || event.altKey || event.defaultPrevented) return;
+      event.preventDefault();
+      opener = link;
+      links = members;
+      current = -1;
+      viewer.querySelector('h2').textContent = title;
+      track.replaceChildren(...links.map(member => {
+        const image = new Image();
+        image.src = member.href;
+        image.alt = member.querySelector('img').alt;
+        image.draggable = false;
+        return image;
+      }));
+      viewer.showModal();
+      show(links.indexOf(link));
+    });
+  }
+  track.addEventListener('scroll', () => {
+    if (viewer.open && track.clientWidth) {
+      const index = Math.round(track.scrollLeft / track.clientWidth);
+      updateCaption(Math.max(0, Math.min(links.length - 1, index)));
+    }
+  }, {passive:true});
+  previous.addEventListener('click', () => show(current - 1));
+  next.addEventListener('click', () => show(current + 1));
+  viewer.querySelector('[data-close]').addEventListener('click', () => viewer.close());
+  viewer.addEventListener('keydown', event => {
+    if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
+      event.preventDefault();
+      show(current + (event.key === 'ArrowRight' ? 1 : -1));
+    }
+  });
+  viewer.addEventListener('close', () => {
+    track.replaceChildren();
+    opener?.focus({preventScroll:true});
+  });
+})();

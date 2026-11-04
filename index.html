@@ -4,8 +4,8 @@
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#0f172a"><meta name="description" content="吳直諺 Ian.Wu 的個人網站，整理 AI 學習、系統導入經歷與作品實作紀錄。">
 <title>吳直諺｜個人網站</title>
-<link rel="stylesheet" href="site.css?v=20261103-project-context">
-<script src="site.js?v=20261101-mobile-rwd" defer></script>
+<link rel="stylesheet" href="site.css?v=20261104-gallery">
+<script src="site.js?v=20261104-gallery" defer></script>
 <script src="starfield.js?v=20261101-no-star-controls" defer></script>
 </head>
 <body id="top">
@@ -23,5 +23,14 @@
 <footer><div class="mobile-footer"><div class="social-links" aria-label="社群連結"><a href="https://github.com/ian94305" aria-label="GitHub" target="_blank" rel="noopener noreferrer"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor" class="h-6 w-6" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"></path></svg></a><span class="social-pending" role="img" aria-label="LinkedIn（連結待補）" title="LinkedIn：連結待補"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="h-6 w-6" aria-hidden="true"><path d="M20.5 2h-17A1.5 1.5 0 002 3.5v17A1.5 1.5 0 003.5 22h17a1.5 1.5 0 001.5-1.5v-17A1.5 1.5 0 0020.5 2zM8 19H5v-9h3zM6.5 8.25A1.75 1.75 0 118.3 6.5a1.78 1.78 0 01-1.8 1.75zM19 19h-3v-4.74c0-1.42-.6-1.93-1.38-1.93A1.74 1.74 0 0013 14.19a.66.66 0 000 .14V19h-3v-9h2.9v1.3a3.11 3.11 0 012.7-1.4c1.55 0 3.36.86 3.36 3.66z"></path></svg></span><span class="social-pending" role="img" aria-label="LINE（連結待補）" title="LINE：連結待補"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" aria-hidden="true"><path fill="currentColor" d="M16 3C8.3 3 2 7.8 2 13.8c0 5.3 4.8 9.7 11.3 10.6l-.6 4.6c-.1.6.4.8.9.5 6.8-4 16.4-9.5 16.4-15.7C30 7.8 23.7 3 16 3Z"/><text x="16" y="17" text-anchor="middle" fill="#0f172a" font-family="Arial,sans-serif" font-weight="700" font-size="8">LINE</text></svg></span></div><p class="copyright">© 2026 吳直諺</p></div><a href="#top">回到頂端 <svg class="link-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M8 13V3M3 8l5-5 5 5"/></svg></a></footer>
 </main>
 </div>
+<dialog class="image-viewer" aria-labelledby="viewer-title">
+  <header><h2 id="viewer-title"></h2><button type="button" data-close autofocus>關閉</button></header>
+  <div class="viewer-track" tabindex="0" role="region" aria-label="作品圖片，可左右滑動"></div>
+  <div class="viewer-controls">
+    <button type="button" data-step="-1">上一張</button>
+    <div class="viewer-caption" role="status" aria-atomic="true"></div>
+    <button type="button" data-step="1">下一張</button>
+  </div>
+</dialog>
 <div class="torch-shade" aria-hidden="true" hidden></div>
 </body></html>
