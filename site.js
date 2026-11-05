@@ -520,6 +520,7 @@
       event.preventDefault();
       opener = link;
       links = members;
+      previous.hidden = next.hidden = members.length === 1;
       current = -1;
       viewer.querySelector('h2').textContent = title;
       track.replaceChildren(...links.map(member => {

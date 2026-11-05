@@ -344,6 +344,9 @@ html,body{overflow-x:clip}
 .project-preview-image a{display:block;aspect-ratio:1.6;border-radius:4px;overflow:hidden;background:var(--project-surface)}
 .project-preview-image img{display:block;width:100%;height:100%;object-fit:contain}
 .project-previews.is-portrait .project-preview-image a{aspect-ratio:390/844}
+.project-previews.has-images:has(figure:only-child){display:block}
+.project-previews .project-preview-image:only-child a{aspect-ratio:530/424;max-width:640px}
+.project-preview-image:only-child .preview-count{display:none}
 .project-source-quote{margin:24px 0 0;padding-block:16px;border-block:1px solid var(--line)}
 .project-source-quote blockquote{margin:0;color:var(--text);font-size:18px;line-height:1.7}
 .project-source-quote figcaption{margin-top:4px;color:var(--muted);font-size:14px}
